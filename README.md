@@ -1,9 +1,10 @@
 # Gherkin Feature-File Parser
-Introducing a sophisticated parser tailored for Gherkin feature files, designed to seamlessly integrate with automation projects. Please note that this parser is currently under active development.
+A parser tailored for Gherkin feature files, designed for seamless integration with automation projects. Please note that this parser is currently under active development.
 
 ### Prerequisites
 * **Python Version:** 3.x
 * **Library:** pyparsing
+
 To install the required library, execute the following command:
 
 
@@ -23,7 +24,7 @@ parsed_lines = parse_feature_file('path/to/feature/file.feature')
 ```
 For customization, refer to the ```functions.py``` file. Functions are organized by keyword-classes, with each class containing a sample for ease of reference.
 
-Supported Grammar
+### Supported Grammar
 This parser recognizes the following Gherkin keywords:
 
 * Feature
