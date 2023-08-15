@@ -11,6 +11,11 @@ class FeatureLine:
 class ScenarioLine:
     def parse(self, line):
         print("Found Scenario line:", line)
+        line_array = line[0].split(":")
+        if line_array[0] == " Outline":
+            print("Found Scenario Outline line:", line)
+        else:
+            pass
 
 
 class GivenLine:
