@@ -1,7 +1,7 @@
-###############################
+################################
 #    Edit this file to add     #
-#  Functionality to the lines #
-###############################
+#  Functionality to the lines  #
+################################
 
 class FeatureLine:
     def parse(self, line):
@@ -77,6 +77,7 @@ class ThenLine:
 
     def breaker_must_guess(self):
         print("Method -> Then the Breaker must guess a word with 5 characters")
+
 
 class AndLine:
     def parse(self, line):

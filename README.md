@@ -1,28 +1,31 @@
-# BDD Feature-File Parser
+# Gherkin Feature-File Parser
+Introducing a sophisticated parser tailored for Gherkin feature files, designed to seamlessly integrate with automation projects. Please note that this parser is currently under active development.
 
-This is a simple parser for Gherkin files, ready to use for automation projects - In development.
+### Prerequisites
+* **Python Version:** 3.x
+* **Library:** pyparsing
+To install the required library, execute the following command:
 
-### Requirements
-* Python 3.x
-* pyparsing
 
-Run the following command in your terminal:
-
-```
+```bash
 pip install pyparsing
 ```
-### Easy start
-Just download this repo and you're ready.
+### Getting Started
+Clone or download this repository to your local machine.
+Ensure the aforementioned prerequisites are met.
 
-### Example usage
-```
+### Usage
+To parse a feature file:
+
+```python
 from functions import parse_feature_file
 parsed_lines = parse_feature_file('path/to/feature/file.feature')
 ```
-And modify the functions on the ```functions.py``` file, they're sorted by keyword-classes. there's an example in every class for an easy start.
+For customization, refer to the ```functions.py``` file. Functions are organized by keyword-classes, with each class containing a sample for ease of reference.
 
-### Grammar
-The grammar recognizes the following keywords:
+Supported Grammar
+This parser recognizes the following Gherkin keywords:
+
 * Feature
 * Scenario
 * Given
@@ -31,11 +34,11 @@ The grammar recognizes the following keywords:
 * And
 * Or
 
-The grammar also recognizes Python-style comments: "#".
+Additionally, Python-style comments, denoted by "#", are also supported.
 
-### More info
-**THIS PROJECT IS JUST A PARSER, THE TECHNOLOGY BELOGS TO:**
+### Acknowledgements
+This project serves as a parser and does not claim ownership of the underlying technology. For more details on Gherkin, visit:
 https://cucumber.io/docs/gherkin/
 
-### License
-This code is licensed under the MIT License. See the LICENSE file for more information.
+### Licensing
+This software is distributed under the terms of the MIT License. For comprehensive licensing details, please refer to the LICENSE file.

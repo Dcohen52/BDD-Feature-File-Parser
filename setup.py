@@ -1,5 +1,5 @@
 import pyparsing as pp
-from functions import *
+from functions import FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine
 
 FEATURE = pp.Keyword('Feature').setResultsName('feature')
 SCENARIO = pp.Keyword('Scenario').setResultsName('scenario')
