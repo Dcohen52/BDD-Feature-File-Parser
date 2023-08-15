@@ -1,5 +1,6 @@
 import pyparsing as pp
 from functions import FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine
+from helper_functions import ADD_KEYWORD
 
 FEATURE = pp.Keyword('Feature').setResultsName('feature')
 SCENARIO = pp.Keyword('Scenario').setResultsName('scenario')
@@ -8,6 +9,9 @@ WHEN = pp.Keyword('When').setResultsName('when')
 THEN = pp.Keyword('Then').setResultsName('then')
 AND = pp.Keyword('And').setResultsName('and')
 OR = pp.Keyword('Or').setResultsName('or')
+
+# ADD_KEYWORD('Example', 'example')
+
 
 feature_line = FEATURE + pp.restOfLine().setParseAction(FeatureLine().parse)
 scenario_line = SCENARIO + pp.restOfLine().setParseAction(ScenarioLine().parse)
