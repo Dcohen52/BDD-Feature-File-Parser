@@ -24,7 +24,7 @@ parsed_lines = parse_feature_file('path/to/feature/file.feature')
 ```
 For customization, refer to the ```functions.py``` file. Functions are organized by keyword-classes, with each class containing a sample for ease of reference.
 
-Supported Grammar
+### Supported Grammar
 This parser recognizes the following Gherkin keywords:
 
 * Feature
