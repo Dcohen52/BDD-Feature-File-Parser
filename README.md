@@ -1,5 +1,5 @@
 # Gherkin Feature-File Parser
-Introducing a sophisticated parser tailored for Gherkin feature files, designed to seamlessly integrate with automation projects. Please note that this parser is currently under active development.
+A parser tailored for Gherkin feature files, designed for seamless integration with automation projects. Please note that this parser is currently under active development.
 
 ### Prerequisites
 * **Python Version:** 3.x
