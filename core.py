@@ -34,7 +34,16 @@ feature_file_grammar = pp.StringStart() + pp.OneOrMore(
 
 
 def parse_feature_file(file_path):
-    with open(file_path, 'r') as file:
-        feature_file = file.read()
-        parsed_lines = feature_file_grammar.parseString(feature_file)
-        return parsed_lines.asList()
+    try:
+        with open(file_path, 'r') as file:
+            feature_file = file.read()
+            parsed_lines = feature_file_grammar.parseString(feature_file)
+            return parsed_lines.asList()
+    except FileNotFoundError:
+        print(f"File {file_path} not found!")
+        return []
+    except pp.ParseException as e:
+        print(f"Error while parsing file {file_path} at line {e.lineno}, column {e.col}: {e.msg}")
+        return []
+
+
