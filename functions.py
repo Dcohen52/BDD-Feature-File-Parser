@@ -56,7 +56,7 @@ class ScenarioLine:
         self.context.current_feature.add_scenario(scenario)
         print("Found Scenario line:", str(line).strip("[':'] "))
         if self.context.current_feature:
-            print("    Current Feature:", self.context.current_feature.title)
+            print("    Related to Feature:", self.context.current_feature.title)
 
 
 class StepLine:
@@ -72,7 +72,11 @@ class StepLine:
         # Also store the step in the current scenario
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
         if self.context.current_scenario:
-            print("    Current Scenario:", self.context.current_scenario.title)
+            print("        Current Scenario:", self.context.current_scenario.title)
+
+            if self.context.current_scenario.title == "Scenario Outline":
+                print("        Current Scenario Outline:", self.context.current_scenario.title)
+                print("        Current Scenario Outline Examples:", self.context.current_scenario.title)
 
 
 class GivenLine(StepLine):
