@@ -43,17 +43,19 @@ class Scenario:
         # Add the examples if they exist
         examples_str = ""
         if self.examples_headers:
-            examples_str += "Examples:\n| " + " | ".join(self.examples_headers) + " |\n"
+            examples_str += "Examples:\n| " + " | ".join(self.examples_headers).strip() + " |\n"
             for row in self.examples_rows:
-                examples_str += "| " + " | ".join(row) + " |\n"
+                examples_str += "| " + " | ".join(row).strip() + " |\n"
 
         return f"Scenario: {self.title}\n{steps_str}{examples_str}"
 
     def add_examples_header(self, headers):
         self.examples_headers = headers
+        print("Headers:", headers)
 
     def add_examples_row(self, row):
         self.examples_rows.append(row)
+        print("Example:", row)
 
     def add_step(self, step_type, content):
         self.steps.append({step_type: content})
@@ -83,34 +85,25 @@ class ScenarioLine:
         self.context = context
 
     def parse(self, line):
-        title = str(line).split(":")[1].strip("' []")
-        scenario = Scenario(title)
-        self.context.current_scenario = scenario
-        self.context.current_feature.add_scenario(scenario)
-        print("Found Scenario line:", title)
-        print("    Related to Feature:", self.context.current_feature.title)
+        if " Outline:" in line[0]:
+            title = str(line).split(":")[1].strip("' []")
+            scenario = Scenario(title)
+            self.context.current_scenario = scenario
+            self.context.current_feature.add_scenario(scenario)
+            print("Found Scenario Outline:", title)
+            print(
+                f"    {Back.LIGHTRED_EX}SO - Related to Feature: {self.context.current_feature.title}{Style.RESET_ALL}")
+        else:
+            title = str(line).split(":")[1].strip("' []")
+            scenario = Scenario(title)
+            self.context.current_scenario = scenario
+            self.context.current_feature.add_scenario(scenario)
+            print("Found Scenario:", title)
+            print(
+                f"    {Back.LIGHTBLACK_EX}S - Related to Feature: {self.context.current_feature.title}{Style.RESET_ALL}")
 
     def add_example_row(self, row):
         self.context.current_scenario.add_examples_row(row)
-
-
-class ScenarioOutlineLine(ScenarioLine):
-
-    def __init__(self, context):
-        self.context = context  # Assuming you want to store the parsing context
-        self.title = ""  # Assuming you store the title of the scenario outline
-        self.steps = []  # List to store steps like Given, When, Then
-        self.examples_header = []
-        self.examples_rows = []
-
-    def parse(self, line):
-        super().parse(line)  # Using the parse function from ScenarioLine
-
-    def add_examples_header(self, headers):
-        self.examples_header = headers
-
-    def add_examples_row(self, row):
-        self.examples_rows.append(row)
 
 
 class StepLine:
@@ -136,7 +129,7 @@ class StepLine:
         print("        Current Scenario:", self.context.current_scenario.title)
 
         # Additional handling if the current scenario is a Scenario Outline
-        if self.context.current_scenario.title == "Outline":  # Adjusted from "Scenario Outline" to "Outline" as we are parsing only the title
+        if self.context.current_scenario.title == "Outline":
             print("        Current Scenario Outline:", self.context.current_scenario.title)
             print("        Current Scenario Outline Examples:", self.context.current_scenario.examples_rows)
 
@@ -168,7 +161,8 @@ class GivenLine(StepLine):
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
 
     def maker_started_a_game(self, word):
-        print(f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
+        print(
+            f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
 
 
 class WhenLine(StepLine):
@@ -237,7 +231,8 @@ class ThenLine(StepLine):
         print(f"{Back.CYAN}{Fore.BLACK}Method -> Then the Maker waits for a Breaker to join{Style.RESET_ALL}")
 
     def breaker_must_guess_a_word_with_n_chars(self, n):
-        print(f"{Back.CYAN}{Fore.BLACK}Method -> Then the Breaker must guess a word with {n} characters{Style.RESET_ALL}")
+        print(
+            f"{Back.CYAN}{Fore.BLACK}Method -> Then the Breaker must guess a word with {n} characters{Style.RESET_ALL}")
 
 
 class AndLine:
@@ -281,17 +276,19 @@ class ExamplesLine:
         self.context = context
 
     def parse(self, lines, current_index):
-        # Assuming lines is the list of all lines and current_index is the index of the Examples: line
-        headers_line = lines[current_index + 1]
-        headers = [header.strip() for header in
-                   headers_line.split('|')[1:-1]]  # Splitting by '|' and ignoring the first and last empty elements
+        print("Found Examples line")
+        # Assuming the next line contains headers
+        headers_line = lines[current_index + 1].strip()  # Handling spaces before and after the entire line
+        # Adjusting the split logic to handle spaces before and after the delimiters
+        headers = [header.strip() for header in headers_line.split('|') if header.strip()]
 
         self.context.current_scenario.add_examples_header(headers)
+        print("Headers:", headers)
 
         # For the rows, continue till you hit a line that doesn't start and end with '|'
-        for line in lines[current_index + 2:]:
-            if line.startswith('|') and line.endswith('|'):
-                row = [value.strip() for value in line.split('|')[1:-1]]
-                self.context.current_scenario.add_examples_row(row)
-            else:
-                break
+        row_index = current_index + 2
+        while row_index < len(lines) and lines[row_index].strip().startswith('|') and lines[row_index].strip().endswith(
+                '|'):
+            row = [value.strip() for value in lines[row_index].split('|') if value.strip()]
+            self.context.current_scenario.add_examples_row(row)
+            row_index += 1

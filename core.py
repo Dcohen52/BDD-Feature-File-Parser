@@ -1,6 +1,5 @@
 import pyparsing as pp
-from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
-    ScenarioOutlineLine
+from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine
 from helper_functions import ADD_KEYWORD
 
 context = ParsingContext()
@@ -22,34 +21,16 @@ when_line = WHEN + pp.restOfLine().setParseAction(WhenLine(context).parse)
 then_line = THEN + pp.restOfLine().setParseAction(ThenLine(context).parse)
 and_line = AND + pp.restOfLine().setParseAction(AndLine(context).parse)
 or_line = OR + pp.restOfLine().setParseAction(OrLine(context).parse)
-# example_row = pp.lineStart + pp.Group(pp.delimitedList(pp.Word(pp.alphas + '_"'))).setParseAction(
-#     ScenarioLine.add_example_row)
-# examples_grammar = EXAMPLES + pp.lineEnd + pp.OneOrMore(example_row)
-
-scenario_outline_line = SCENARIO_OUTLINE + pp.restOfLine().setParseAction(ScenarioOutlineLine(context).parse)
 
 pipe_delimited = pp.delimitedList(pp.originalTextFor(pp.Word(pp.alphas + '_" ')), delim="|", combine=True)
 example_header = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
 example_row = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
 examples_grammar = EXAMPLES + pp.lineEnd + example_header + pp.OneOrMore(example_row)
 
-# example_header = pp.Group(pp.delimitedList(pp.Word(pp.alphas + '_'))).setParseAction(
-#     ScenarioOutlineLine(context).add_example_header)
-# example_row = pp.Group(pp.delimitedList(pp.Word(pp.alphas + '_"'))).setParseAction(
-#     ScenarioOutlineLine(context).add_example_row)
-# examples_grammar = EXAMPLES + pp.lineEnd + example_header + pp.lineEnd + pp.OneOrMore(example_row)
-
-# pipe_delimited = pp.delimitedList(pp.Word(pp.printables + " "), delim="|", combine=True)
-# examples_header = EXAMPLES + pp.LineEnd() + pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.LineEnd()
-# examples_row = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.LineEnd()
-# example_block = examples_header + pp.OneOrMore(examples_row)
-
-
 feature_file_grammar = pp.StringStart() + pp.OneOrMore(
     pp.pythonStyleComment |
     feature_line |
     scenario_line |
-    scenario_outline_line |
     examples_grammar |
     given_line |
     when_line |
@@ -80,28 +61,40 @@ def parse_feature_file(file_path):
                         scenario_outline_steps.append(line)
                         continue
 
-                if 'examples' in line:
-                    headers = line[1]
-                    rows = [row for row in line[2:] if row != '\n']
-
-                    for row_idx, row in enumerate(rows):
-                        print(f"\nExample {row_idx + 1}/{len(rows)}:")
-                        for step in scenario_outline_steps:
-                            print(step[0], end=' ')  # Given, When, or Then
-                            step_text = step[1]
-                            for header, value in zip(headers, row):
-                                step_text = step_text.replace(f"<{header}>", value)
-                            print(step_text)
-
-                    # Resetting for the next Scenario or Scenario Outline
+                if 'Examples:' in line:
                     is_scenario_outline = False
                     scenario_outline_steps = []
 
-            # Print the structure of the feature
-            if context.features:
-                print("\n", context.features[0])
+                    examples_headers = []
+                    examples_rows = []
 
-            return parsed_lines.asList()
+                    print("\nExamples:")
+                    for idx, line in enumerate(parsed_lines[idx + 1:]):
+                        if 'examples' in line:
+                            break
+
+                        if idx == 0:
+                            examples_headers.append(line)
+                        else:
+                            examples_headers.append(line)
+                            examples_rows.append(line)
+
+                    headers_splitted = examples_headers[1].split('|')
+                    headers = [header.strip() for header in headers_splitted if header.strip() != '']
+                    print(f"Headers: {headers}")
+
+                    for row in examples_rows[2::2]:
+                        row_splitted = row.split('|')
+                        values = [value.strip() for value in row_splitted if value.strip() != '']
+                        print(f"Values: {values}")
+
+                    continue
+
+            # # Print the structure of the feature
+            # if context.features:
+            #     print("\n", context.features[0])
+            #
+            # return parsed_lines.asList()
 
     except FileNotFoundError:
         print(f"File {file_path} not found!")
