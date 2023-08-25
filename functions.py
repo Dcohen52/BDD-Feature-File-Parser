@@ -2,8 +2,9 @@
 #    Edit this file to add     #
 #  Functionality to the lines  #
 ################################
+
 import re
-from colorama import Fore, Style, Back
+from colorama import Fore, Back, Style
 
 
 class Feature:
@@ -167,46 +168,76 @@ class GivenLine(StepLine):
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
 
     def maker_started_a_game(self, word):
-        print(f"Method -> Given the Maker has started a game with the word {word}")
+        print(f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
 
 
 class WhenLine(StepLine):
     def __init__(self, context):
         super().__init__(context)
         self.line_dispatcher = {
-            (r'When the Maker starts a game', self.maker_starts_a_game),
-            (r'When the Breaker guesses the word "(.*)"', self.breaker_guesses_word),
-            ("When the Breaker joins the Maker's game", self.breaker_joins_the_makers_game)
+            (r'\s*the Maker starts a game', self.maker_starts_a_game),
+            (r'\s*the Breaker guesses the word "(.*)"', self.breaker_guesses_word),
+            (r"\s*the Breaker joins the Maker's game", self.breaker_joins_the_makers_game)
 
         }
 
+    def parse(self, line):
+        curr_line = line[0].strip()
+        matched = False
+        for pattern, handler in self.line_dispatcher:
+            match = re.match(pattern, curr_line)
+            if match:
+                handler(*match.groups())
+                matched = True
+                break
+        if not matched:
+            print(f"{Fore.RED}No handler found for: {curr_line}{Style.RESET_ALL}")
+
+        # Store the step in the current scenario
+        self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
+
     def maker_starts_a_game(self):
-        print("Method -> When the Maker starts a game")
+        print(f"{Back.GREEN}{Fore.BLACK}Method -> When the Maker starts a game{Style.RESET_ALL}")
 
     def breaker_guesses_word(self, guess):
-        print(f"Method -> When the Breaker guesses the word {guess}")
+        print(f"{Back.GREEN}{Fore.BLACK}Method -> When the Breaker guesses the word {guess}{Style.RESET_ALL}")
 
     def breaker_joins_the_makers_game(self):
-        print("Method -> When the Breaker joins the Maker's game")
+        print(f"{Back.GREEN}{Fore.BLACK}Method -> When the Breaker joins the Maker's game{Style.RESET_ALL}")
 
 
 class ThenLine(StepLine):
     def __init__(self, context):
         super().__init__(context)
         self.line_dispatcher = {
-            (r'Then the outcome is "(.*)"', self.outcome_is),
-            ("Then the Maker waits for a Breaker to join", self.maker_waits_for_breaker_to_join),
-            (r'Then the Breaker must guess a word with "(.*)" characters', self.breaker_must_guess_a_word_with_n_chars),
+            (r'\s*the outcome is "(.*)"', self.outcome_is),
+            (r"\s*the Maker waits for a Breaker to join", self.maker_waits_for_breaker_to_join),
+            (r'\s*the Breaker must guess a word with "(.*)" characters', self.breaker_must_guess_a_word_with_n_chars),
         }
 
+    def parse(self, line):
+        curr_line = line[0].strip()
+        matched = False
+        for pattern, handler in self.line_dispatcher:
+            match = re.match(pattern, curr_line)
+            if match:
+                handler(*match.groups())
+                matched = True
+                break
+        if not matched:
+            print(f"{Fore.RED}No handler found for: {curr_line}{Style.RESET_ALL}")
+
+        # Store the step in the current scenario
+        self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
+
     def outcome_is(self, outcome):
-        print(f"Method -> Then the outcome is {outcome}")
+        print(f"{Back.CYAN}{Fore.BLACK}Method -> Then the outcome is {outcome}{Style.RESET_ALL}")
 
     def maker_waits_for_breaker_to_join(self):
-        print("Method -> Then the Maker waits for a Breaker to join")
+        print(f"{Back.CYAN}{Fore.BLACK}Method -> Then the Maker waits for a Breaker to join{Style.RESET_ALL}")
 
     def breaker_must_guess_a_word_with_n_chars(self, n):
-        print(f"Method -> Then the Breaker must guess a word with {n} characters")
+        print(f"{Back.CYAN}{Fore.BLACK}Method -> Then the Breaker must guess a word with {n} characters{Style.RESET_ALL}")
 
 
 class AndLine:
