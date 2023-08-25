@@ -7,6 +7,9 @@ import re
 from colorama import Fore, Back, Style
 
 
+# from core import examples_headers, examples_rows
+
+
 class Feature:
     def __init__(self, title):
         self.title = title
@@ -40,22 +43,17 @@ class Scenario:
                 else:
                     steps_str += f"{step_type}: {content}\n"
 
-        # Add the examples if they exist
-        examples_str = ""
-        if self.examples_headers:
-            examples_str += "Examples:\n| " + " | ".join(self.examples_headers).strip() + " |\n"
-            for row in self.examples_rows:
-                examples_str += "| " + " | ".join(row).strip() + " |\n"
-
-        return f"Scenario: {self.title}\n{steps_str}{examples_str}"
-
     def add_examples_header(self, headers):
-        self.examples_headers = headers
-        print("Headers:", headers)
+        self.examples_headers = headers[0].split("|")[0:-1]
+        stipped_headers = [header.strip() for header in self.examples_headers]
+        self.examples_headers = stipped_headers
+        print(f"{Fore.LIGHTYELLOW_EX}Header: {Style.RESET_ALL}{self.examples_headers}")
 
     def add_examples_row(self, row):
-        self.examples_rows.append(row)
-        print("Example:", row)
+        self.examples_rows.append(row[0].split("|")[0:-1])
+        row_stripped = [value.strip() for value in self.examples_rows[-1]]
+        self.examples_rows = row_stripped
+        print(f"{Fore.LIGHTYELLOW_EX}Row: {Style.RESET_ALL}{self.examples_rows}")
 
     def add_step(self, step_type, content):
         self.steps.append({step_type: content})
@@ -77,7 +75,7 @@ class FeatureLine:
         feature = Feature(title)
         self.context.current_feature = feature
         self.context.features.append(feature)
-        print("Found Feature line:", title)
+        print(f"{Back.LIGHTGREEN_EX}{Fore.BLACK}Found Feature:{Style.RESET_ALL}", title)
 
 
 class ScenarioLine:
@@ -90,17 +88,19 @@ class ScenarioLine:
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print("Found Scenario Outline:", title)
+            print(f"{Back.LIGHTRED_EX}Found Scenario Outline:{Style.RESET_ALL}", title)
             print(
-                f"    {Back.LIGHTRED_EX}SO - Related to Feature: {self.context.current_feature.title}{Style.RESET_ALL}")
+                f"    SO - Related to Feature: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
+
+            # HERE
         else:
             title = str(line).split(":")[1].strip("' []")
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print("Found Scenario:", title)
+            print(f"{Back.LIGHTBLACK_EX}Found Scenario:{Style.RESET_ALL}", title)
             print(
-                f"    {Back.LIGHTBLACK_EX}S - Related to Feature: {self.context.current_feature.title}{Style.RESET_ALL}")
+                f"    S - Related to Feature: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
 
     def add_example_row(self, row):
         self.context.current_scenario.add_examples_row(row)
@@ -276,19 +276,19 @@ class ExamplesLine:
         self.context = context
 
     def parse(self, lines, current_index):
-        print("Found Examples line")
-        # Assuming the next line contains headers
-        headers_line = lines[current_index + 1].strip()  # Handling spaces before and after the entire line
-        # Adjusting the split logic to handle spaces before and after the delimiters
-        headers = [header.strip() for header in headers_line.split('|') if header.strip()]
+        print(
+            f"{Back.LIGHTYELLOW_EX}{Fore.BLACK}Found Examples{Style.RESET_ALL} related to Scenario Outline: {Back.LIGHTRED_EX}{self.context.current_scenario.title}{Style.RESET_ALL}")
 
-        self.context.current_scenario.add_examples_header(headers)
-        print("Headers:", headers)
 
-        # For the rows, continue till you hit a line that doesn't start and end with '|'
-        row_index = current_index + 2
-        while row_index < len(lines) and lines[row_index].strip().startswith('|') and lines[row_index].strip().endswith(
-                '|'):
-            row = [value.strip() for value in lines[row_index].split('|') if value.strip()]
-            self.context.current_scenario.add_examples_row(row)
-            row_index += 1
+class ExamplesValuesLine:
+    def __init__(self, context):
+        self.context = context
+
+    def parse(self, line):
+        # self.context.current_scenario.add_examples_header(line)
+        # HEADER
+        if not self.context.current_scenario.examples_headers:
+            self.context.current_scenario.add_examples_header(line)
+        # ROW
+        else:
+            self.context.current_scenario.add_examples_row(line)

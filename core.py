@@ -1,6 +1,6 @@
 import pyparsing as pp
-from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine
-from helper_functions import ADD_KEYWORD
+from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
+    ExamplesLine, ExamplesValuesLine
 
 context = ParsingContext()
 
@@ -12,7 +12,7 @@ THEN = pp.Keyword('Then').setResultsName('then')
 AND = pp.Keyword('And').setResultsName('and')
 OR = pp.Keyword('Or').setResultsName('or')
 SCENARIO_OUTLINE = pp.Keyword('Scenario Outline').setResultsName('scenario_outline')
-EXAMPLES = pp.Keyword('Examples:').setResultsName('examples')
+EXAMPLES = pp.Keyword('Examples').setResultsName('examples')
 
 feature_line = FEATURE + pp.restOfLine().setParseAction(FeatureLine(context).parse)
 scenario_line = SCENARIO + pp.restOfLine().setParseAction(ScenarioLine(context).parse)
@@ -21,23 +21,30 @@ when_line = WHEN + pp.restOfLine().setParseAction(WhenLine(context).parse)
 then_line = THEN + pp.restOfLine().setParseAction(ThenLine(context).parse)
 and_line = AND + pp.restOfLine().setParseAction(AndLine(context).parse)
 or_line = OR + pp.restOfLine().setParseAction(OrLine(context).parse)
+examples_line = EXAMPLES + pp.restOfLine().setParseAction(ExamplesLine(context).parse)
+examples_values_line = "|" + pp.restOfLine().setParseAction(ExamplesValuesLine(context).parse)
 
-pipe_delimited = pp.delimitedList(pp.originalTextFor(pp.Word(pp.alphas + '_" ')), delim="|", combine=True)
-example_header = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
-example_row = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
-examples_grammar = EXAMPLES + pp.lineEnd + example_header + pp.OneOrMore(example_row)
+
+# pipe_delimited = pp.delimitedList(pp.originalTextFor(pp.Word(pp.alphas + '_" ')), delim="|", combine=True)
+# example_header = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
+# example_row = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
+# examples_grammar = EXAMPLES + pp.lineEnd + example_header + pp.OneOrMore(example_row)
 
 feature_file_grammar = pp.StringStart() + pp.OneOrMore(
     pp.pythonStyleComment |
     feature_line |
     scenario_line |
-    examples_grammar |
+    examples_line |
+    examples_values_line |
     given_line |
     when_line |
     then_line |
     and_line |
     or_line
 )
+
+examples_headers = []
+examples_rows = []
 
 
 def parse_feature_file(file_path):
@@ -65,10 +72,7 @@ def parse_feature_file(file_path):
                     is_scenario_outline = False
                     scenario_outline_steps = []
 
-                    examples_headers = []
-                    examples_rows = []
-
-                    print("\nExamples:")
+                    # print("\nExamples:")
                     for idx, line in enumerate(parsed_lines[idx + 1:]):
                         if 'examples' in line:
                             break
@@ -81,12 +85,12 @@ def parse_feature_file(file_path):
 
                     headers_splitted = examples_headers[1].split('|')
                     headers = [header.strip() for header in headers_splitted if header.strip() != '']
-                    print(f"Headers: {headers}")
+                    # print(f"Headers: {headers}")
 
                     for row in examples_rows[2::2]:
                         row_splitted = row.split('|')
                         values = [value.strip() for value in row_splitted if value.strip() != '']
-                        print(f"Values: {values}")
+                        # print(f"Values: {values}")
 
                     continue
 
@@ -102,3 +106,10 @@ def parse_feature_file(file_path):
     except pp.ParseException as e:
         print(f"Error while parsing file {file_path} at line {e.lineno}, column {e.col}: {e.msg}")
         return []
+
+
+# RUN
+
+if __name__ == '__main__':
+    file_path = 'example.feat'
+    parsed_lines = parse_feature_file(file_path)
