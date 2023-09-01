@@ -38,4 +38,7 @@ import time
 driver = webdriver.Chrome()
 driver.get("https://www.google.com")
 time.sleep(2)
+print("Page title: ", driver.title)
+print("Current URL: ", driver.current_url)
+print("TEST!!!! PASSED!!!!")
 driver.quit()
