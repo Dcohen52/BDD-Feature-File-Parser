@@ -32,13 +32,17 @@
 #     first_result = setup_driver.find_element_by_css_selector(".tF2Cxc").text
 #     assert "Selenium" in first_result, f"Expected 'Selenium' to be in first result, but got {first_result}"
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 
 driver = webdriver.Chrome()
 driver.get("https://www.google.com")
-time.sleep(2)
 print("Page title: ", driver.title)
 print("Current URL: ", driver.current_url)
-print("TEST!!!! PASSED!!!!")
+print("Page source: ", driver.page_source)
+search_box = driver.find_element(By.ID, "APjFqb")
+search_box.send_keys("Selenium")
+search_box.send_keys(Keys.RETURN)
+time.sleep(2)
 driver.quit()
