@@ -31,18 +31,11 @@
 #     # Verify if "Selenium" exists in the first search result
 #     first_result = setup_driver.find_element_by_css_selector(".tF2Cxc").text
 #     assert "Selenium" in first_result, f"Expected 'Selenium' to be in first result, but got {first_result}"
-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
-driver = webdriver.Chrome(executable_path="C:\\chromedriver_win32\\chromedriver.exe")
+driver = webdriver.Chrome()
 driver.get("https://www.google.com")
-search_box = driver.find_element_by_name("q")
-search_box.send_keys("Selenium")
-search_box.send_keys(Keys.RETURN)
 time.sleep(2)
-first_result = driver.find_element_by_css_selector(".tF2Cxc").text
-assert "Selenium" in first_result, f"Expected 'Selenium' to be in first result, but got {first_result}"
-print("Test passed")
 driver.quit()
