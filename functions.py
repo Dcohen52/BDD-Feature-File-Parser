@@ -5,15 +5,23 @@
 
 import re
 from colorama import Fore, Back, Style
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
+import datetime
 
 
 # from core import examples_headers, examples_rows
 
 
+print("\nLyre v0.0.2 - For more information, visit https://github.com/Dcohen52/Lyre\n\n")
+
 class Feature:
     def __init__(self, title):
         self.title = title
         self.scenarios = []
+
 
     def __str__(self):
         return f"Storyboard: {self.title}\n" + "\n".join(str(scenario) for scenario in self.scenarios)
@@ -163,12 +171,6 @@ class GivenLine(StepLine):
     def maker_started_a_game(self, word):
         # print(
         #     f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.common.keys import Keys
-        import time
-        import datetime
-
         driver = webdriver.Chrome()
         driver.get("https://www.google.com")
         print("Page title: ", driver.title)
