@@ -1,0 +1,22 @@
+Storyboard: Guess the word
+
+    # reference: https://cucumber.io/docs/gherkin/reference/
+    Case: Maker starts a game
+        When the Maker starts a game
+        Then the Maker waits for a Breaker to join
+
+    Case: Breaker joins a game
+        Given the Maker has started a game with the word "silky"
+        When the Breaker joins the Maker's game
+        Then the Breaker must guess a word with "5" characters
+
+    Case Outline: Guessing multiple words
+        Given the Maker has started a game with the word "<word>"
+        When the Breaker guesses the word "<guess>"
+        Then the outcome is "<outcome>"
+
+        Examples:
+            | word  | guess | outcome |
+            | silky | silk  | fail    |
+            | rocky | rock  | fail    |
+            | honey | honey | pass    |

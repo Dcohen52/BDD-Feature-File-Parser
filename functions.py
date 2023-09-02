@@ -16,7 +16,7 @@ class Feature:
         self.scenarios = []
 
     def __str__(self):
-        return f"Feature: {self.title}\n" + "\n".join(str(scenario) for scenario in self.scenarios)
+        return f"Storyboard: {self.title}\n" + "\n".join(str(scenario) for scenario in self.scenarios)
 
     def add_scenario(self, scenario):
         self.scenarios.append(scenario)
@@ -75,7 +75,7 @@ class FeatureLine:
         feature = Feature(title)
         self.context.current_feature = feature
         self.context.features.append(feature)
-        print(f"{Back.LIGHTGREEN_EX}{Fore.BLACK}Found Feature:{Style.RESET_ALL}", title)
+        print(f"{Back.LIGHTGREEN_EX}{Fore.BLACK}Found Storyboard:{Style.RESET_ALL}", title)
 
 
 class ScenarioLine:
@@ -88,9 +88,9 @@ class ScenarioLine:
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print(f"{Back.LIGHTRED_EX}Found Scenario Outline:{Style.RESET_ALL}", title)
+            print(f"{Back.LIGHTRED_EX}Found Case Outline:{Style.RESET_ALL}", title)
             print(
-                f"    SO - Related to Feature: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
+                f"    SO - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
 
             # HERE
         else:
@@ -98,9 +98,9 @@ class ScenarioLine:
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print(f"{Back.LIGHTBLACK_EX}Found Scenario:{Style.RESET_ALL}", title)
+            print(f"{Back.LIGHTBLACK_EX}Found Case:{Style.RESET_ALL}", title)
             print(
-                f"    S - Related to Feature: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
+                f"    S - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
 
     def add_example_row(self, row):
         self.context.current_scenario.add_examples_row(row)
@@ -126,12 +126,12 @@ class StepLine:
 
         # Store the step in the current scenario
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
-        print("        Current Scenario:", self.context.current_scenario.title)
+        print("        Current Case:", self.context.current_scenario.title)
 
         # Additional handling if the current scenario is a Scenario Outline
         if self.context.current_scenario.title == "Outline":
-            print("        Current Scenario Outline:", self.context.current_scenario.title)
-            print("        Current Scenario Outline Examples:", self.context.current_scenario.examples_rows)
+            print("        Current Case Outline:", self.context.current_scenario.title)
+            print("        Current Case Outline Examples:", self.context.current_scenario.examples_rows)
 
 
 class GivenLine(StepLine):
@@ -294,7 +294,7 @@ class ExamplesLine:
 
     def parse(self, lines, current_index):
         print(
-            f"{Back.LIGHTYELLOW_EX}{Fore.BLACK}Found Examples{Style.RESET_ALL} related to Scenario Outline: {Back.LIGHTRED_EX}{self.context.current_scenario.title}{Style.RESET_ALL}")
+            f"{Back.LIGHTYELLOW_EX}{Fore.BLACK}Found Examples{Style.RESET_ALL} related to Case Outline: {Back.LIGHTRED_EX}{self.context.current_scenario.title}{Style.RESET_ALL}")
 
 
 class ExamplesValuesLine:

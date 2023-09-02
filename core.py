@@ -4,8 +4,8 @@ from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, When
 
 context = ParsingContext()
 
-FEATURE = pp.Keyword('Feature').setResultsName('feature')
-SCENARIO = pp.Keyword('Scenario').setResultsName('scenario')
+FEATURE = pp.Keyword('Storyboard').setResultsName('feature')
+SCENARIO = pp.Keyword('Case').setResultsName('scenario')
 GIVEN = pp.Keyword('Given').setResultsName('given')
 WHEN = pp.Keyword('When').setResultsName('when')
 THEN = pp.Keyword('Then').setResultsName('then')
