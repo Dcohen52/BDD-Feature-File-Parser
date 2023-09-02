@@ -161,8 +161,25 @@ class GivenLine(StepLine):
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
 
     def maker_started_a_game(self, word):
-        print(
-            f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
+        # print(
+        #     f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
+        from selenium import webdriver
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.common.keys import Keys
+        import time
+        import datetime
+
+        driver = webdriver.Chrome()
+        driver.get("https://www.google.com")
+        print("Page title: ", driver.title)
+        print("Current URL: ", driver.current_url)
+        search_box = driver.find_element(By.ID, "APjFqb")
+        search_box.send_keys(f"{word}")
+        search_box.send_keys(Keys.RETURN)
+        time.sleep(2)
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        driver.save_screenshot(f"{today_date}-screenshot.png")
+        driver.quit()
 
 
 class WhenLine(StepLine):
