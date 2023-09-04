@@ -1,4 +1,4 @@
-# Lyre
+# Lyre: Your Storyboarding Assistant 🎭
 Introducing Lyre: a specialized parsing engine that uses a modified DSL based on gherkin. Designed for seamless integration into automation workflows, Lyre elevates the efficiency and sophistication of your test automation processes. Continual development ensures that Lyre remains at the forefront of technological advancements.
 
 ### Prerequisites
