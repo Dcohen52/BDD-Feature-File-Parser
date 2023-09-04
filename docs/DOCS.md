@@ -1,6 +1,6 @@
 # Lyre: Your Storyboarding Assistant 🎭
-Lyre is a system designed to process and interpret scripts written in a specific domain language. It allows users to define storyboards, scenarios, and specific steps for a given application or system behavior.
-
+Lyre is a system designed to process and interpret scripts written in a specific domain language. It allows users to define storyboards, cases and specific steps for a given application or system behavior.
+Lyre uses a modified DSL based on Gherkin. Designed for seamless integration into automation workflows, Lyre elevates the efficiency and sophistication of your test automation processes. Continual development ensures that Lyre remains at the forefront of technological advancements.
 For more detailed information, visit Lyre's GitHub page.
 
 ### What Can Lyre Do? 🚀
