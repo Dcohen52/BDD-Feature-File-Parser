@@ -1,5 +1,5 @@
 import pyparsing as pp
-from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
+from engine.functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
     ExamplesLine, ExamplesValuesLine, Notify, Logging
 
 context = ParsingContext()
