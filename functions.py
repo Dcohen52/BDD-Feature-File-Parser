@@ -11,17 +11,16 @@ from selenium.webdriver.common.keys import Keys
 import time
 import datetime
 
-
 # from core import examples_headers, examples_rows
 
 
 print("\nLyre v0.0.2 - For more information, visit https://github.com/Dcohen52/Lyre\n\n")
 
+
 class Feature:
     def __init__(self, title):
         self.title = title
         self.scenarios = []
-
 
     def __str__(self):
         return f"Storyboard: {self.title}\n" + "\n".join(str(scenario) for scenario in self.scenarios)
@@ -37,6 +36,7 @@ class Scenario:
         # FOR OUTLINE
         self.examples_headers = []
         self.examples_rows = []
+        self.notifications = []
 
     def __str__(self):
         steps_str = ""
@@ -65,6 +65,9 @@ class Scenario:
 
     def add_step(self, step_type, content):
         self.steps.append({step_type: content})
+
+    def has_notification_for(self, email_address):
+        return email_address in self.notifications
 
 
 class ParsingContext:
@@ -169,19 +172,8 @@ class GivenLine(StepLine):
         self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
 
     def maker_started_a_game(self, word):
-        # print(
-        #     f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
-        driver = webdriver.Chrome()
-        driver.get("https://www.google.com")
-        print("Page title: ", driver.title)
-        print("Current URL: ", driver.current_url)
-        search_box = driver.find_element(By.ID, "APjFqb")
-        search_box.send_keys(f"{word}")
-        search_box.send_keys(Keys.RETURN)
-        time.sleep(2)
-        today_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        driver.save_screenshot(f"{today_date}-screenshot.png")
-        driver.quit()
+        print(
+            f"{Back.BLUE}{Fore.BLACK}Method -> Given the Maker has started a game with the word {word}{Style.RESET_ALL}")
 
 
 class WhenLine(StepLine):
@@ -191,7 +183,6 @@ class WhenLine(StepLine):
             (r'\s*the Maker starts a game', self.maker_starts_a_game),
             (r'\s*the Breaker guesses the word "(.*)"', self.breaker_guesses_word),
             (r"\s*the Breaker joins the Maker's game", self.breaker_joins_the_makers_game)
-
         }
 
     def parse(self, line):
@@ -257,37 +248,52 @@ class ThenLine(StepLine):
 class AndLine:
     def __init__(self, context):
         self.context = context
-        self.line_dispatcher = {}
+        self.line_dispatcher = {
+            (r'\s*the Maker waits for a Breaker to join', self.maker_waits_for_breaker_to_join),
+        }
 
     def parse(self, line):
-        """
-        :param line: list[0] converted to a string.
-        :return: executes relevant method to the current line.
-        """
-        curr_line = line[0]
-        line = curr_line[:1].replace(" ", "") + curr_line[1:]
-        # Retrieve method from dispatch dictionary and invoke it
-        method_to_invoke = self.line_dispatcher.get(line)
-        if method_to_invoke:
-            method_to_invoke()
+        curr_line = line[0].strip()
+        matched = False
+        for pattern, handler in self.line_dispatcher:
+            match = re.match(pattern, curr_line)
+            if match:
+                handler(*match.groups())
+                matched = True
+                break
+        if not matched:
+            print(f"{Fore.RED}No handler found for: {curr_line}{Style.RESET_ALL}")
+
+        # Store the step in the current scenario
+        self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
+
+    def maker_waits_for_breaker_to_join(self):
+        print(f"{Back.MAGENTA}{Fore.BLACK}Method -> Then the Maker waits for a Breaker to join{Style.RESET_ALL}")
 
 
 class OrLine:
     def __init__(self, context):
         self.context = context
-        self.line_dispatcher = {}
+        self.line_dispatcher = {
+            (r'\s*the Maker waits for a Breaker to join', self.maker_waits_for_breaker_to_join),
+        }
 
     def parse(self, line):
-        """
-        :param line: list[0] converted to a string.
-        :return: executes relevant method to the current line.
-        """
-        curr_line = line[0]
-        line = curr_line[:1].replace(" ", "") + curr_line[1:]
-        # Retrieve method from dispatch dictionary and invoke it
-        method_to_invoke = self.line_dispatcher.get(line)
-        if method_to_invoke:
-            method_to_invoke()
+        curr_line = line[0].strip()
+        matched = False
+        for pattern, handler in self.line_dispatcher:
+            match = re.match(pattern, curr_line)
+            if match:
+                handler(*match.groups())
+                matched = True
+                break
+        if not matched:
+            print(f"{Fore.RED}No handler found for: {curr_line}{Style.RESET_ALL}")
+
+        self.context.current_scenario.add_step(self.__class__.__name__, curr_line)
+
+    def maker_waits_for_breaker_to_join(self):
+        print(f"{Back.YELLOW}{Fore.BLACK}Method -> Then the Maker waits for a Breaker to join{Style.RESET_ALL}")
 
 
 class ExamplesLine:
@@ -311,3 +317,32 @@ class ExamplesValuesLine:
         # ROW
         else:
             self.context.current_scenario.add_examples_row(line)
+
+
+class Notify:
+    def __init__(self, context):
+        self.context = context
+
+    def parse(self, line):
+        # Extract the email addresses from the Notify line
+        email_addresses = eval(
+            line[0].split(":", 1)[1].strip())  # Using eval to convert the string list to an actual list
+        self.context.current_scenario.notifications.extend(email_addresses)  # Store in the current scenario
+        # Store the step in the current scenario
+        self.context.current_scenario.add_step(self.__class__.__name__, line[0])
+
+        print(
+            f"{Fore.LIGHTBLUE_EX}Notification set for: {email_addresses} in case: {self.context.current_scenario.title}{Style.RESET_ALL}")
+
+
+class Logging:
+    def __init__(self, context):
+        self.context = context
+
+    def parse(self, line):
+        logging_mode = line[0].split(":", 1)[1].strip()
+        self.context.current_scenario.add_step(self.__class__.__name__, line[0])
+
+        print(
+            f"{Fore.LIGHTBLUE_EX}Logging mode: {logging_mode} in case: {self.context.current_scenario.title}{Style.RESET_ALL}")
+

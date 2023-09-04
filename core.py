@@ -1,6 +1,6 @@
 import pyparsing as pp
 from functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
-    ExamplesLine, ExamplesValuesLine
+    ExamplesLine, ExamplesValuesLine, Notify, Logging
 
 context = ParsingContext()
 
@@ -11,9 +11,17 @@ WHEN = pp.Keyword('When').setResultsName('when')
 THEN = pp.Keyword('Then').setResultsName('then')
 AND = pp.Keyword('And').setResultsName('and')
 OR = pp.Keyword('Or').setResultsName('or')
+NOTIFY = pp.Keyword('Notify').setResultsName('notify')
 SCENARIO_OUTLINE = pp.Keyword('Scenario Outline').setResultsName('scenario_outline')
 EXAMPLES = pp.Keyword('Examples').setResultsName('examples')
+IF = pp.Keyword('if').setResultsName('if')
+ELSE = pp.Keyword('else').setResultsName('else')
+CONDITION = pp.Word(pp.alphanums + " ()").setResultsName('condition')
+LOGGING = pp.Keyword('Log').setResultsName('logging')
 
+
+if_condition = IF + pp.Suppress("(") + CONDITION + pp.Suppress(")") + THEN + pp.restOfLine().setResultsName('then_clause')
+else_condition = ELSE + THEN + pp.restOfLine().setResultsName('else_clause')
 feature_line = FEATURE + pp.restOfLine().setParseAction(FeatureLine(context).parse)
 scenario_line = SCENARIO + pp.restOfLine().setParseAction(ScenarioLine(context).parse)
 given_line = GIVEN + pp.restOfLine().setParseAction(GivenLine(context).parse)
@@ -21,9 +29,11 @@ when_line = WHEN + pp.restOfLine().setParseAction(WhenLine(context).parse)
 then_line = THEN + pp.restOfLine().setParseAction(ThenLine(context).parse)
 and_line = AND + pp.restOfLine().setParseAction(AndLine(context).parse)
 or_line = OR + pp.restOfLine().setParseAction(OrLine(context).parse)
+notify = NOTIFY + pp.restOfLine().setParseAction(Notify(context).parse)
+logging = LOGGING + pp.restOfLine().setParseAction(Logging(context).parse)
+
 examples_line = EXAMPLES + pp.restOfLine().setParseAction(ExamplesLine(context).parse)
 examples_values_line = "|" + pp.restOfLine().setParseAction(ExamplesValuesLine(context).parse)
-
 
 # pipe_delimited = pp.delimitedList(pp.originalTextFor(pp.Word(pp.alphas + '_" ')), delim="|", combine=True)
 # example_header = pp.Suppress("|") + pipe_delimited + pp.Suppress("|") + pp.lineEnd()
@@ -40,7 +50,11 @@ feature_file_grammar = pp.StringStart() + pp.OneOrMore(
     when_line |
     then_line |
     and_line |
-    or_line
+    or_line |
+    notify |
+    if_condition |
+    else_condition |
+    logging
 )
 
 examples_headers = []
@@ -92,6 +106,10 @@ def parse_feature_file(file_path):
                         values = [value.strip() for value in row_splitted if value.strip() != '']
                         # print(f"Values: {values}")
 
+                    continue
+
+                if 'Notify:' in line:
+                    print("\nNotify:", line[1])
                     continue
 
             # # Print the structure of the feature
