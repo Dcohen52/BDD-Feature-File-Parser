@@ -26,10 +26,14 @@ Lyre currently recognizes the following keywords:
 * Then
 * And
 * Or
+* Notify
+* Log
 
 ```cucumber
 Storyboard: Login Functionality
   Case: Successful Login
+    Notify: ["email@example.com", "email2@example.com"]
+    Log: detailed
     Given I am in the login screen
     And I input valid credentials
     Then I should be directed to the dashboard
