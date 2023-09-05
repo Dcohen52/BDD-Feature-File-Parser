@@ -26,9 +26,24 @@ Lyre currently recognizes the following keywords:
 * Then
 * And
 * Or
-* Notify
-* Log
 
+#### Custom Directives
+
+Here are some custom directives that you can use to enhance your tests, along with their descriptions:
+
+```cucumber
+    Notify: ["email@example.com"]
+    Log: debug
+    Environment: QA
+    Version: 1.0.0
+    Priority: 1
+    Skip: true
+    Screenshot: always
+```
+
+More on them, in the DOCS.md file.
+
+### Example
 ```cucumber
 Storyboard: Login Functionality
   Case: Successful Login
