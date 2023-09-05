@@ -1,6 +1,10 @@
+import re
+
 import pyparsing as pp
+from colorama import Fore, Style, Back
+
 from engine.functions import ParsingContext, FeatureLine, ScenarioLine, GivenLine, WhenLine, ThenLine, AndLine, OrLine, \
-    ExamplesLine, ExamplesValuesLine, Notify, Logging
+    ExamplesLine, ExamplesValuesLine, Notify, Logging, Version, Environment
 
 context = ParsingContext()
 
@@ -18,7 +22,8 @@ IF = pp.Keyword('if').setResultsName('if')
 ELSE = pp.Keyword('else').setResultsName('else')
 CONDITION = pp.Word(pp.alphanums + " ()").setResultsName('condition')
 LOGGING = pp.Keyword('Log').setResultsName('logging')
-
+VERSION = pp.Keyword('Version').setResultsName('version')
+ENVIRONMENT = pp.Keyword('Environment').setResultsName('environment')
 
 if_condition = IF + pp.Suppress("(") + CONDITION + pp.Suppress(")") + THEN + pp.restOfLine().setResultsName('then_clause')
 else_condition = ELSE + THEN + pp.restOfLine().setResultsName('else_clause')
@@ -31,6 +36,9 @@ and_line = AND + pp.restOfLine().setParseAction(AndLine(context).parse)
 or_line = OR + pp.restOfLine().setParseAction(OrLine(context).parse)
 notify = NOTIFY + pp.restOfLine().setParseAction(Notify(context).parse)
 logging = LOGGING + pp.restOfLine().setParseAction(Logging(context).parse)
+version = VERSION + pp.restOfLine().setParseAction(Version(context).parse)
+environment = ENVIRONMENT + pp.restOfLine().setParseAction(Environment(context).parse)
+
 
 examples_line = EXAMPLES + pp.restOfLine().setParseAction(ExamplesLine(context).parse)
 examples_values_line = "|" + pp.restOfLine().setParseAction(ExamplesValuesLine(context).parse)
@@ -54,7 +62,9 @@ feature_file_grammar = pp.StringStart() + pp.OneOrMore(
     notify |
     if_condition |
     else_condition |
-    logging
+    logging |
+    version |
+    environment
 )
 
 examples_headers = []
@@ -62,6 +72,21 @@ examples_rows = []
 
 
 def parse_feature_file(file_path):
+    try:
+        with open(".env", "r") as file:
+            try:
+                contents = file.read()
+                version_match = re.search(r"VERSION=(\d+)\.(\d+)\.(\d+)-(.+)", contents)
+                current_major_version = int(version_match.group(1))
+                current_minor_version = int(version_match.group(2))
+                current_patch_version = int(version_match.group(3))
+                current_state = version_match.group(4)
+                print(
+                    f"\nLyre v{current_major_version}.{current_minor_version}.{current_patch_version}-{current_state} - For more information, visit https://github.com/Dcohen52/Lyre\n")
+            except Exception as e:
+                print(f"{Fore.RED}Error : {e}{Style.RESET_ALL}")
+    except FileNotFoundError:
+        print(f"{Fore.RED}Error : .env file not found{Style.RESET_ALL}")
     try:
         with open(file_path, 'r') as file:
             feature_file = file.read()
@@ -112,15 +137,12 @@ def parse_feature_file(file_path):
                     print("\nNotify:", line[1])
                     continue
 
-            # # Print the structure of the feature
+            # Print the structure of the feature
             # if context.features:
             #     print("\n", context.features[0])
             #
             # return parsed_lines.asList()
 
-    except FileNotFoundError:
-        print(f"File {file_path} not found!")
-        return []
     except pp.ParseException as e:
         print(f"Error while parsing file {file_path} at line {e.lineno}, column {e.col}: {e.msg}")
         return []
@@ -129,5 +151,5 @@ def parse_feature_file(file_path):
 # RUN
 
 if __name__ == '__main__':
-    file_path = 'example.feat'
+    file_path = '../lyre files/example.feat'
     parsed_lines = parse_feature_file(file_path)

@@ -2,16 +2,22 @@ Storyboard: Guess the word
 
     # reference: https://cucumber.io/docs/gherkin/reference/
     Case: Maker starts a game
-        Notify: ["email@example.com", "email2@example.com"]
-        Log: detailed
         When the Maker starts a game
         Then the Maker waits for a Breaker to join
+        Log: debug
+        Environment: dev
+#        Priority: 1
+#        Skip: false
+        Version: 1.0.0
+#        Screenshot: always/on-failure
 
     Case: Breaker joins a game
         Given the Maker has started a game with the word "silky"
         When the Breaker joins the Maker's game
         Or the Maker waits for a Breaker to join
         Then the Breaker must guess a word with "5" characters
+        Notify: ["dcohen52@gmail.com"]
+
 
     Case Outline: Guessing multiple words
         Given the Maker has started a game with the word "<word>"

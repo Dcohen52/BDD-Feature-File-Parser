@@ -6,6 +6,7 @@ For more detailed information, visit Lyre's GitHub page.
 ### What Can Lyre Do? 🚀
 
 * **Gherkin-esque Syntax:** Use simple, structured language to define your tests.
+* **Custom Directives**: Use custom directives to enhance your tests.
 * **Easy Test Crafting:** Describe your application's behavior in user-centric terms.
 * **Automated Execution:** Run tests automatically, ensuring your software is always up to the mark.
 * **Notification System:** Stay informed about your tests' statuses.
@@ -34,11 +35,33 @@ Use the Lyre syntax to describe the behavior. E.g.,
 Storyboard: Login Functionality
   Case: Successful Login
     Notify: ["email@example.com", "email2@example.com"]
-    Log: detailed
+    Log: debug
     Given I am in the login screen
     And I input valid credentials
     Then I should be directed to the dashboard
 ```
+
+#### Custom Directives
+
+Here are some custom directives that you can use to enhance your tests, along with their descriptions:
+
+```cucumber
+    Notify: ["email@example.com"]
+    Log: debug
+    Environment: QA
+    Version: 1.0.0
+    Priority: 1
+    Skip: true
+    Screenshot: always
+```
+
+* **Notify:** Sends an email to the specified email addresses when the test is executed.
+* **Log:** Sets the log mode for the test. The default log level is "none", you can set it to "debug", "none" for now.
+* **Environment:** Sets the environment for the test.
+* **Version:** Sets the version for the test.
+* **Priority:** Sets the priority for the test.
+* **Skip:** Skips the test if set to true. The default value is "false".
+* **Screenshot:** Takes screenshot of the application at each step, available options are "always", "on-fail", "never". The default value is "never".
 
 #### 3. Execute Your Tests 🏃‍♂️
 Run Lyre and watch as it automates the testing process based on your described scenarios.

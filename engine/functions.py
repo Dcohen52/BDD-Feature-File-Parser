@@ -5,16 +5,15 @@
 
 import re
 from colorama import Fore, Back, Style
+import logging
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import time
 import datetime
 
 # from core import examples_headers, examples_rows
 
-
-print("\nLyre v0.0.2 - For more information, visit https://github.com/Dcohen52/Lyre\n\n")
+# store current date in a variable, in format: YYYY-MM-DD
+CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
+CURRENT_TIME = datetime.datetime.now().strftime("%H-%M-%S")
 
 
 class Feature:
@@ -86,7 +85,7 @@ class FeatureLine:
         feature = Feature(title)
         self.context.current_feature = feature
         self.context.features.append(feature)
-        print(f"{Back.LIGHTGREEN_EX}{Fore.BLACK}Found Storyboard:{Style.RESET_ALL}", title)
+        print(f"Storyboard: ", title)
 
 
 class ScenarioLine:
@@ -99,19 +98,17 @@ class ScenarioLine:
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print(f"{Back.LIGHTRED_EX}Found Case Outline:{Style.RESET_ALL}", title)
-            print(
-                f"    SO - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
-
-            # HERE
+            print(f"{Back.LIGHTBLACK_EX}Case Outline:{Style.RESET_ALL}", title)
+            # print(
+            #     f"    CO - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
         else:
             title = str(line).split(":")[1].strip("' []")
             scenario = Scenario(title)
             self.context.current_scenario = scenario
             self.context.current_feature.add_scenario(scenario)
-            print(f"{Back.LIGHTBLACK_EX}Found Case:{Style.RESET_ALL}", title)
-            print(
-                f"    S - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
+            print(f"{Back.LIGHTBLACK_EX}Case:{Style.RESET_ALL}", title)
+            # print(
+            #     f"    C - Related to Storyboard: {Back.LIGHTGREEN_EX}{Fore.BLACK}{self.context.current_feature.title}{Style.RESET_ALL}")
 
     def add_example_row(self, row):
         self.context.current_scenario.add_examples_row(row)
@@ -208,6 +205,11 @@ class WhenLine(StepLine):
 
     def breaker_joins_the_makers_game(self):
         print(f"{Back.GREEN}{Fore.BLACK}Method -> When the Breaker joins the Maker's game{Style.RESET_ALL}")
+        # open the browser
+        # go to the website
+        driver = webdriver.Chrome()
+        driver.get("https://www.google.com")
+        driver.quit()
 
 
 class ThenLine(StepLine):
@@ -334,6 +336,12 @@ class Notify:
         print(
             f"{Fore.LIGHTBLUE_EX}Notification set for: {email_addresses} in case: {self.context.current_scenario.title}{Style.RESET_ALL}")
 
+        # get the logs for all the steps in the current scenario
+        for step in self.context.current_scenario.steps:
+            for step_type, content in step.items():
+                # print(f"Step type: {step_type} with content: {content}")
+                pass
+
 
 class Logging:
     def __init__(self, context):
@@ -342,7 +350,42 @@ class Logging:
     def parse(self, line):
         logging_mode = line[0].split(":", 1)[1].strip()
         self.context.current_scenario.add_step(self.__class__.__name__, line[0])
-
         print(
-            f"{Fore.LIGHTBLUE_EX}Logging mode: {logging_mode} in case: {self.context.current_scenario.title}{Style.RESET_ALL}")
+            f"Logging mode: {Fore.LIGHTBLUE_EX}{logging_mode}{Style.RESET_ALL}")
+        try:
+            if logging_mode == "debug":
+                with open(f'config.json', 'r') as f:
+                    f.read()
 
+                    logging.basicConfig(
+                        filename=f'{CURRENT_DATE}_{CURRENT_TIME}_DEBUG_{str(self.context.current_scenario.title).replace(" ", "-")}.log',
+                        filemode='w',
+                        format='%(name)s - %(levelname)s - %(message)s')
+                    # store all selenium logs in the log file
+                    logging.getLogger('selenium').setLevel(logging.DEBUG)
+            elif logging_mode == "none":
+                pass
+        except ValueError:
+            print("Invalid logging mode")
+
+
+class Version:
+    def __init__(self, context):
+        self.context = context
+
+    def parse(self, line):
+        version = line[0].split(":", 1)[1].strip()
+        # self.context.current_scenario.add_step(self.__class__.__name__, line[0])
+        print(
+            f"Version: {Fore.BLUE}{version}{Style.RESET_ALL}")
+
+
+class Environment:
+    def __init__(self, context):
+        self.context = context
+
+    def parse(self, line):
+        environment = line[0].split(":", 1)[1].strip()
+        # self.context.current_scenario.add_step(self.__class__.__name__, line[0])
+        print(
+            f"Environment: {Fore.BLUE}{environment}{Style.RESET_ALL}")
