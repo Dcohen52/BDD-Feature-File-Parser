@@ -1,0 +1,8 @@
+{
+    "DEFAULT_PATH": "./lyre/automatic-tests/",
+    "TEMPLATE_PATH": "./lyre/automatic-tests/templates",
+    "REPORTS_PATH": "./lyre/automatic-tests/reports",
+    "LOGS_PATH": "./lyre/automatic-tests/logs",
+    "EMAIL": "",
+    "PASSWORD": ""
+}
