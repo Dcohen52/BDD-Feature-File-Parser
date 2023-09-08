@@ -3,13 +3,10 @@ Introducing Lyre: a specialized parsing engine that uses a modified DSL based on
 
 ### Prerequisites
 * **Python Version:** 3.x (Incompatibility with Python 2.x has been observed)
-* **Library:** pyparsing
 
-To install the prerequisite library, execute the command below in your shell environment:
-
-
+To install the prerequisite libraries, execute the command below in your shell environment:
 ```bash
-pip install pyparsing
+pip install -r requirements.txt
 ```
 ### Getting Started
 1. **Clone the repository:**
